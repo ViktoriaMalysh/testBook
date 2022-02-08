@@ -1,30 +1,26 @@
+import {configureStore} from '@reduxjs/toolkit';
 import storage from 'redux-persist/lib/storage';
-import { combineReducers } from 'redux';
-import {
-    persistReducer,
-    FLUSH,
-    REHYDRATE,
-    PAUSE,
-    PERSIST,
-    PURGE,
-    REGISTER,
-} from 'redux-persist';
+import {combineReducers} from "redux";
+import { persistReducer } from 'redux-persist';
+import thunk from 'redux-thunk';
+
+import counterReducer from './slice';
+
+const reducers = combineReducers({
+  counter: counterReducer
+});
 
 const persistConfig = {
-    key: 'counter',
-    storage,
+    key: 'root',
+    storage
 };
-
-const reducers = combineReducers({ counter: counterSlice });
 
 const persistedReducer = persistReducer(persistConfig, reducers);
 
-export default configureStore({
+const store = configureStore({
     reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-            },
-        }),
+    devTools: process.env.NODE_ENV !== 'production',
+    middleware: [thunk]
 });
+
+export default store;
